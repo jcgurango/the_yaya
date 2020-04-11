@@ -16,7 +16,7 @@ module.exports = ({
   now = new Date(),
   next_month = new Date(now.getFullYear(), now.getMonth() + 1, 1),
   subreddit = config.defaults.subreddit,
-}) => {
+} = { }) => {
   // database for remembering past posts
   //
   var database = 'db/what_to_do.sdb';
