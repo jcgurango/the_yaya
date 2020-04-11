@@ -73,7 +73,7 @@ module.exports = ({
           if (row) {
             id = row.id;
           }
-          callback(err, id, 'fz1b7z');
+          callback(err, id);
         });
       },
       // create next month's post
