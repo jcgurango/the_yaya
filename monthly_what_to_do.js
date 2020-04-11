@@ -16,10 +16,11 @@ module.exports = ({
   now = new Date(),
   next_month = new Date(now.getFullYear(), now.getMonth() + 1, 1),
   subreddit = config.defaults.subreddit,
-} = { }) => {
+} = { }) => new Promise((resolve, reject) => {
   // database for remembering past posts
   //
-  var database = 'db/what_to_do.sdb';
+  var database = '/app/db/what_to_do.sdb';
+  console.log(database);
 
   var sql_check_tables = 'select name from sqlite_master where type=\'table\'';
   var sql_get = 'select id from wtdlinks where key = ?';
@@ -184,6 +185,7 @@ module.exports = ({
   }  
 
   function error(msg) {
+    reject(new Error(msg));
     console.log(strftime('%F %T ERROR: ') + msg);
   }
-};
+});
