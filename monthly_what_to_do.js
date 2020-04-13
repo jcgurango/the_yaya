@@ -38,7 +38,14 @@ module.exports = ({
     // get this month's id from db
     //
     function(callback) {
-      fs.readFile(`./db/threads/${key(now)}`, { encodiung: 'utf-8' }, callback);
+      fs.readFile(`./db/threads/${key(now)}`, { encoding: 'utf8' }, function(error, data) {
+        if (error) {
+          callback(error);
+          return;
+        }
+
+        callback(null, data.toString().trim());
+      });
     },
     // create next month's post
     // 
@@ -62,6 +69,11 @@ module.exports = ({
       update_this_month(prev_id, new_id, function(err) {
         callback(err);
       });
+    },
+    // Log that we're done.
+    function(callback) {
+      log('Monthly thread posted.');
+      callback(null);
     }
   ], function (err) {
     if (err) {
