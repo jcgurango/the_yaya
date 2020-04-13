@@ -14,8 +14,8 @@ module.exports = () => new Promise(function(resolve, reject) {
   // the actual post to be submitted
   //
   var submission = {
-    'title': strftime('Nightly random discussion - %b %d, %Y'),
-    'text': config.slogan + 'Magandang hatinggabi r/' + config.defaults.subreddit + '!',
+    'title': strftime('Afternoon random discussion - %b %d, %Y'),
+    'text': config.slogan + 'Magandang hapon r/' + config.defaults.subreddit + '!',
     'r': config.defaults.subreddit,
     'inboxReplies': false,
     'save': false,
@@ -36,7 +36,7 @@ module.exports = () => new Promise(function(resolve, reject) {
             post = body.data.children[0].data
           } catch(e) {}
           if (post) {
-            var text = 'Tonight\'s [Ask PHreddit](' + post.url + '): '
+            var text = 'This afternoon\'s [Ask PHreddit](' + post.url + '): '
                     + post.title;
             reddit.comment('t3_' + id, text, function(err, id) {
               if (err) {
@@ -48,9 +48,12 @@ module.exports = () => new Promise(function(resolve, reject) {
           }
         }
       });
+
     }
   });
 
+  // in case of error, log to STDERR and exit
+  //
   function error(err) {
     reject(err);
   }

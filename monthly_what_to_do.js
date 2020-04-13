@@ -2,7 +2,6 @@ var rawjs    = require('raw.js');
 var strftime = require('strftime');
 var entities = require('entities');
 var sqlite3  = require('sqlite3').verbose();
-var request  = require('request-json');
 var async    = require('async');
 var config   = require('./lib/config');
 var fs       = require('fs');
@@ -53,7 +52,6 @@ module.exports = ({
         });
       },
 
-      // Check if the database has tables
       // authenticate at reddit
       //
       function(callback) {
@@ -121,7 +119,7 @@ module.exports = ({
           'most recently announced events.\n\n', next_month);
     
       var submission = {
-        'title': strftime('Open Thread: What to do in %B %Y', next_month),
+        'title': strftime('What to do in %B %Y', next_month),
         'text': config.slogan + text
               + '[<< Previous month](' + link(prev_id) + ')',
         'r': subreddit,
