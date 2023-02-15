@@ -7,7 +7,7 @@ module.exports = () => new Promise(function(resolve, reject) {
   // the actual post to be submitted
   //
   var submission = {
-    'title': strftime('Daily random discussion - %b %d, %Y', strftime('Daily random discussion - %b %d, %Y', new Date((new Date()).setDate((new Date()).getDate()+1)))),
+    'title': strftime('Daily random discussion - %b %d, %Y', new Date((new Date()).setDate((new Date()).getDate()+1))),
     'text': config.slogan,
     'r': config.defaults.subreddit,
     'inboxReplies': false,
