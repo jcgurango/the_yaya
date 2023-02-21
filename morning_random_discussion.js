@@ -27,7 +27,7 @@ module.exports = () => new Promise(function(resolve, reject) {
     if (quote) {
       submission.text += quote + '\n\n';
     }
-    submission.text += strftime('Happy %A!!');
+    submission.text += strftime('Happy %A!!', new Date((new Date()).setDate((new Date()).getDate()+1)));
 
     reddit.submit(submission, function(err, id) {
       if (err) {
