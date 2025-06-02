@@ -18,9 +18,9 @@ const retryRoutine = (callback, retries = 5) => async () => {
 };
 
 cron.schedule('55 21  * * *', retryRoutine(require('./morning_random_discussion')));
-cron.schedule('55 3 * * *', retryRoutine(require('./afternoon_random_discussion')));
+//cron.schedule('55 3 * * *', retryRoutine(require('./afternoon_random_discussion')));
 cron.schedule('55 9 * * *', retryRoutine(require('./evening_random_discussion')));
-cron.schedule('55 15 * * *', retryRoutine(require('./nightly_random_discussion')));
+//cron.schedule('55 15 * * *', retryRoutine(require('./nightly_random_discussion')));
 cron.schedule('39 2 1 * *', retryRoutine(require('./monthly_what_to_do')));
 
 console.log('CRONs scheduled.');
