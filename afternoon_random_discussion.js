@@ -1,5 +1,4 @@
 var strftime = require('strftime');
-var request  = require('request-json');
 var config   = require('./lib/config');
 var reddit   = require('./lib/reddit');
 
@@ -27,25 +26,18 @@ module.exports = () => new Promise(function(resolve, reject) {
     } else {
       log('submitted ' + id);
 
-      var client = request.newClient('http://www.reddit.com/'),
-          url = '/r/AskReddit/top/.json';
-
-      client.get(url, function(err, res, body) {
-        if (!err) {
-          try {
-            post = body.data.children[0].data
-          } catch(e) {}
-          if (post) {
-            var text = 'This afternoon\'s [Ask PHreddit](' + post.url + '): '
-                    + post.title;
-            reddit.comment('t3_' + id, text, function(err, id) {
-              if (err) {
-                error(err);
-              } else {
-                exit('commented ' + id);
-              }
-            });
-          }
+      reddit.getTopPost('AskReddit', function(err, post) {
+        if (!err && post) {
+          var text = 'This afternoon\'s [Ask PHreddit](' + post.url + '): ' + post.title;
+          reddit.comment('t3_' + id, text, function(err, comment_id) {
+            if (err) {
+              error(err);
+            } else {
+              exit('commented ' + comment_id);
+            }
+          });
+        } else {
+          exit('submitted ' + id);
         }
       });
 

@@ -1,14 +1,8 @@
-var rawjs    = require('raw.js');
 var strftime = require('strftime');
 var entities = require('entities');
-var async    = require('async');
 var config   = require('./lib/config');
+var reddit   = require('./lib/reddit');
 var fs       = require('fs');
-
-// set up reddit api
-//
-var reddit = new rawjs(config.user_agent);
-reddit.setupOAuth2(config.app.id, config.app.secret);
 
 module.exports = ({
   now = new Date(),
@@ -22,66 +16,45 @@ module.exports = ({
     subreddit = process.argv[2];
   }
 
-  async.waterfall([
-    // authenticate at reddit
-    //
-    function(callback) {
-      reddit.auth(config.credentials, function(err, response) {
-        if (err) {
-          callback('Unable to authenticate user: ' + err);
-        } else {
-          callback(null);
-        }
-      });
-    },
-  
-    // get this month's id from db
-    //
-    function(callback) {
-      fs.readFile(`./db/threads/${key(now)}`, { encoding: 'utf8' }, function(error, data) {
-        if (error) {
-          callback(error);
-          return;
-        }
-
-        callback(null, data.toString().trim());
-      });
-    },
-    // create next month's post
-    // 
-    function(prev_id, callback) {
-      submit_next_month(prev_id, function(err, new_id) {
-        callback(err, prev_id, new_id);
-      });
-    },
-  
-    // store next month's id to db
-    //
-    function (prev_id, new_id, callback) {
-      fs.writeFile(`./db/threads/${key(next_month)}`, new_id, function(err) {
-        callback(err, prev_id, new_id);
-      });
-    },
-    // update this month's post with link to next month
-    // and sticky it
-    // 
-    function (prev_id, new_id, callback) {
-      update_this_month(prev_id, new_id, function(err) {
-        callback(err);
-      });
-    },
-    // Log that we're done.
-    function(callback) {
-      log('Monthly thread posted.');
-      callback(null);
-    }
-  ], function (err) {
-    if (err) {
-      error(err);
+  // get this month's id from db
+  //
+  fs.readFile(`./db/threads/${key(now)}`, { encoding: 'utf8' }, function(file_err, data) {
+    if (file_err) {
+      error(file_err);
       return;
     }
 
-    resolve();
+    var prev_id = data.toString().trim();
+
+    // create next month's post
+    // 
+    submit_next_month(prev_id, function(err, new_id) {
+      if (err) {
+        error(err);
+        return;
+      }
+
+      // store next month's id to db
+      //
+      fs.writeFile(`./db/threads/${key(next_month)}`, new_id, function(write_err) {
+        if (write_err) {
+          error(write_err);
+          return;
+        }
+
+        // update this month's post with link to next month
+        // 
+        update_this_month(prev_id, new_id, function(update_err) {
+          if (update_err) {
+            error(update_err);
+            return;
+          }
+
+          log('Monthly thread posted.');
+          resolve();
+        });
+      });
+    });
   });
 
   function submit_next_month(prev_id, callback) {
@@ -117,26 +90,22 @@ module.exports = ({
   // and also make this month's thread sticky
   //
   function update_this_month(id, next_id, callback) {
-    reddit.comments({
-      link: id,
-    }, function(err, res, body) {
+    reddit.getPost(id, function(err, selftext) {
       if (err) {
         callback(err);
-      } else {
-        var selftext = body.data.children[0].data.selftext;
-  
-        selftext = entities.decodeHTML(selftext);
-  
-        var new_text = ' | [Next month >>](' + link(next_id) + ')';
-  
-        reddit.edit('t3_' + id, selftext + new_text, function(err, response) {
-          if (err) {
-            callback('Unable to update this month\'s text: ' + err);
-          } else {
-            callback(null);
-          }
-        });
+        return;
       }
+
+      var decoded_text = entities.decodeHTML(selftext);
+      var new_text = decoded_text + ' | [Next month >>](' + link(next_id) + ')';
+
+      reddit.edit(id, new_text, function(edit_err) {
+        if (edit_err) {
+          callback('Unable to update this month\'s text: ' + edit_err);
+        } else {
+          callback(null);
+        }
+      });
     });
   }
 
