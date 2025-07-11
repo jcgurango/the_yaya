@@ -27,6 +27,7 @@ module.exports = () => new Promise(function(resolve, reject) {
     if (quote) {
       submission.text += quote + '\n\n';
     }
+    
     submission.text += 'Magandang gabi!';
 
     reddit.submit(submission, function(err, id) {

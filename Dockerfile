@@ -1,4 +1,4 @@
-FROM node:8
+FROM node:20
 
 COPY . /app
 COPY .docker/config.js /app/lib/config.js
