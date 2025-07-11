@@ -1,8 +1,8 @@
-FROM node:20
+FROM node:22
 
 COPY . /app
 COPY .docker/config.js /app/lib/config.js
 WORKDIR /app
-RUN npm install
+RUN npm install --production
 
 ENTRYPOINT node .
